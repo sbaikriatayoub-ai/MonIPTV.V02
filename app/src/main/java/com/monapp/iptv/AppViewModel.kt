@@ -142,11 +142,13 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             try {
                 val c = XtreamClient(server, user, pass)
                 if (c.login()) {
-                    prefs.edit()
-                        .putString("server", server)
-                        .putString("user", user)
-                        .putString("pass", pass)
-                        .apply()
+                    if (!server.trim().equals("demo", ignoreCase = true)) {
+                        prefs.edit()
+                            .putString("server", server)
+                            .putString("user", user)
+                            .putString("pass", pass)
+                            .apply()
+                    }
                     client = c
                     loadAll()
                 } else {
