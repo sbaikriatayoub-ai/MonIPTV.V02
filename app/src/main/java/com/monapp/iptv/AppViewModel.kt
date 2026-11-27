@@ -103,7 +103,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         if (clean.isBlank() || profiles.size >= 6) return
         val palette = listOf(0xFFF5A524, 0xFF3B82F6, 0xFF10B981, 0xFFEC4899, 0xFF8B5CF6, 0xFF06B6D4)
         val created = Profile(
-            id = "p_\${UUID.randomUUID().toString().take(6)}",
+            id = "p_${UUID.randomUUID().toString().take(6)}",
             name = clean,
             accentHex = palette[profiles.size % palette.size]
         )
@@ -153,7 +153,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                     error = "Compte inactif ou identifiants incorrects"
                 }
             } catch (e: Exception) {
-                error = "Connexion impossible : \${e.message}"
+                error = "Connexion impossible : ${e.message}"
             } finally {
                 busy = false
             }
@@ -169,7 +169,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                     val d = SectionData(c.categories(s), c.items(s))
                     data = data + (s to d)
                 } catch (e: Exception) {
-                    error = "Chargement impossible (${s.label}) :${e.message}"
+                    error = "Chargement impossible (${s.label}) : ${e.message}"
                 }
             }
             loading = false
@@ -234,7 +234,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                     }
                 }
             } catch (e: Exception) {
-                error = "Détails indisponibles : \${e.message}"
+                error = "Détails indisponibles : ${e.message}"
             } finally {
                 metaLoading = false
             }
@@ -266,7 +266,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     fun playMovie(item: Item) {
         val c = client ?: return
-        val key = "m:\${item.id}"
+        val key = "m:${item.id}"
         val h = history.firstOrNull { it.key == key }
         val start = if (h != null && h.dur > 0 && h.pos < h.dur - 30_000) h.pos else 0L
         val t = HistItem(
@@ -297,7 +297,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     fun playEpisode(series: Item, ep: Ep, seasonLabel: String) {
         val c = client ?: return
-        val key = "e:\${ep.id}"
+        val key = "e:${ep.id}"
         val h = history.firstOrNull { it.key == key }
         val start = if (h != null && h.dur > 0 && h.pos < h.dur - 30_000) h.pos else 0L
         val label = "S$seasonLabel" + (ep.num?.let { " É$it" } ?: "")
@@ -317,7 +317,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         )
         play = PlayRequest(
             url = c.episodeUrl(ep.id, ep.ext),
-            title = "${series.title} ·$label",
+            title = "${series.title} · $label",
             isLive = false,
             key = key,
             startMs = start,
@@ -333,7 +333,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         val url = if (h.epId != null) c.episodeUrl(h.epId, h.epExt) else c.movieUrl(h.id, h.ext)
         play = PlayRequest(
             url = url,
-            title = h.epLabel?.let { "${h.title} ·$it" } ?: h.title,
+            title = h.epLabel?.let { "${h.title} · $it" } ?: h.title,
             isLive = false,
             key = h.key,
             startMs = start,
