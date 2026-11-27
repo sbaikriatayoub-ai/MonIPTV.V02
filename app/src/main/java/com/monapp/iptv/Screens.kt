@@ -22,7 +22,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -94,6 +96,7 @@ fun SettingsScreen(vm: AppViewModel) {
     Column(
         Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -117,7 +120,7 @@ fun SettingsScreen(vm: AppViewModel) {
                     Chip(
                         label = mode.label,
                         selected = vm.defaultDisplayMode == mode,
-                        onClick = { vm.setDefaultDisplayMode(mode) }
+                        onClick = { vm.updateDefaultDisplayMode(mode) }
                     )
                 }
             }
@@ -138,7 +141,7 @@ fun SettingsScreen(vm: AppViewModel) {
             }
             Switch(
                 checked = vm.startMuted,
-                onCheckedChange = { vm.setStartMuted(it) },
+                onCheckedChange = { vm.updateStartMuted(it) },
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = OnAccent,
                     checkedTrackColor = Accent
@@ -163,6 +166,18 @@ fun SettingsScreen(vm: AppViewModel) {
                     vm.logout()
                 }
             }
+        }
+
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(14.dp))
+                .background(Panel)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text("MonIPTV · v0.2", color = Txt, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+            Text("Développé et signé par Ayoub S.", color = Accent, fontSize = 13.sp)
         }
     }
 }
