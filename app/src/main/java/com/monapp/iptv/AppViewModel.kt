@@ -50,7 +50,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     var dest by mutableStateOf(Dest.HOME)
         private set
-    var data by mutableStateOf>(emptyMap())
+    var data by mutableStateOf(emptyMap<Section, SectionData>())
         private set
     var selectedCat by mutableStateOf<String?>(null)
         private set
