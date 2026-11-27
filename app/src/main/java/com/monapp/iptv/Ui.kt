@@ -433,6 +433,16 @@ fun LoginScreen(vm: AppViewModel) {
                     overflow = TextOverflow.Ellipsis
                 )
             }
+            TextButton(
+                onClick = { vm.login("demo", "demo", "demo") },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    "Essayer la démo (vidéos libres de droits)",
+                    color = Accent, fontSize = 13.sp,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }
