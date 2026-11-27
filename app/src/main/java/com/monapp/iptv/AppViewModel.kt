@@ -50,7 +50,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     var dest by mutableStateOf(Dest.HOME)
         private set
-    var data by mutableStateOf<Map<Section, SectionData>>(emptyMap())
+    var data by mutableStateOf>(emptyMap())
         private set
     var selectedCat by mutableStateOf<String?>(null)
         private set
@@ -102,18 +102,22 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         val clean = name.trim().take(24)
         if (clean.isBlank() || profiles.size >= 6) return
         val palette = listOf(0xFFF5A524, 0xFF3B82F6, 0xFF10B981, 0xFFEC4899, 0xFF8B5CF6, 0xFF06B6D4)
-        val created = Profile("p_${UUID.randomUUID().toString().take(6)}", clean, palette[profiles.size % palette.size])
+        val created = Profile(
+            id = "p_\${UUID.randomUUID().toString().take(6)}",
+            name = clean,
+            accentHex = palette[profiles.size % palette.size]
+        )
         profiles = profiles + created
         store.saveProfiles(profiles)
         selectProfile(created.id)
     }
 
-    fun setDefaultDisplayMode(mode: DisplayMode) {
+    fun updateDefaultDisplayMode(mode: DisplayMode) {
         defaultDisplayMode = mode
         store.saveDisplayMode(mode)
     }
 
-    fun setStartMuted(muted: Boolean) {
+    fun updateStartMuted(muted: Boolean) {
         startMuted = muted
         store.saveStartMuted(muted)
     }
@@ -126,7 +130,9 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     fun autoLogin() {
         if (triedAuto) return
         triedAuto = true
-        if (savedServer.isNotBlank() && savedUser.isNotBlank()) login(savedServer, savedUser, savedPass)
+        if (savedServer.isNotBlank() && savedUser.isNotBlank()) {
+            login(savedServer, savedUser, savedPass)
+        }
     }
 
     fun login(server: String, user: String, pass: String) {
@@ -136,14 +142,18 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             try {
                 val c = XtreamClient(server, user, pass)
                 if (c.login()) {
-                    prefs.edit().putString("server", server).putString("user", user).putString("pass", pass).apply()
+                    prefs.edit()
+                        .putString("server", server)
+                        .putString("user", user)
+                        .putString("pass", pass)
+                        .apply()
                     client = c
                     loadAll()
                 } else {
                     error = "Compte inactif ou identifiants incorrects"
                 }
             } catch (e: Exception) {
-                error = "Connexion impossible : ${e.message}"
+                error = "Connexion impossible : \${e.message}"
             } finally {
                 busy = false
             }
@@ -159,7 +169,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                     val d = SectionData(c.categories(s), c.items(s))
                     data = data + (s to d)
                 } catch (e: Exception) {
-                    error = "Chargement impossible (${s.label}) : ${e.message}"
+                    error = "Chargement impossible (${s.label}) :${e.message}"
                 }
             }
             loading = false
@@ -224,7 +234,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                     }
                 }
             } catch (e: Exception) {
-                error = "Détails indisponibles : ${e.message}"
+                error = "Détails indisponibles : \${e.message}"
             } finally {
                 metaLoading = false
             }
@@ -256,10 +266,23 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     fun playMovie(item: Item) {
         val c = client ?: return
-        val key = "m:${item.id}"
+        val key = "m:\${item.id}"
         val h = history.firstOrNull { it.key == key }
         val start = if (h != null && h.dur > 0 && h.pos < h.dur - 30_000) h.pos else 0L
-        val t = HistItem(key, "FILMS", item.id, item.title, item.image, item.ext, null, null, null, 0L, 0L, 0L)
+        val t = HistItem(
+            key = key,
+            section = "FILMS",
+            id = item.id,
+            title = item.title,
+            image = item.image,
+            ext = item.ext,
+            epId = null,
+            epExt = null,
+            epLabel = null,
+            pos = 0L,
+            dur = 0L,
+            ts = 0L
+        )
         play = PlayRequest(
             url = c.movieUrl(item.id, item.ext),
             title = item.title,
@@ -274,14 +297,27 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     fun playEpisode(series: Item, ep: Ep, seasonLabel: String) {
         val c = client ?: return
-        val key = "e:${ep.id}"
+        val key = "e:\${ep.id}"
         val h = history.firstOrNull { it.key == key }
         val start = if (h != null && h.dur > 0 && h.pos < h.dur - 30_000) h.pos else 0L
         val label = "S$seasonLabel" + (ep.num?.let { " É$it" } ?: "")
-        val t = HistItem(key, "SERIES", series.id, series.title, series.image, null, ep.id, ep.ext, label, 0L, 0L, 0L)
+        val t = HistItem(
+            key = key,
+            section = "SERIES",
+            id = series.id,
+            title = series.title,
+            image = series.image,
+            ext = null,
+            epId = ep.id,
+            epExt = ep.ext,
+            epLabel = label,
+            pos = 0L,
+            dur = 0L,
+            ts = 0L
+        )
         play = PlayRequest(
             url = c.episodeUrl(ep.id, ep.ext),
-            title = "${series.title} · $label",
+            title = "${series.title} ·$label",
             isLive = false,
             key = key,
             startMs = start,
@@ -297,7 +333,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         val url = if (h.epId != null) c.episodeUrl(h.epId, h.epExt) else c.movieUrl(h.id, h.ext)
         play = PlayRequest(
             url = url,
-            title = h.epLabel?.let { "${h.title} · $it" } ?: h.title,
+            title = h.epLabel?.let { "${h.title} ·$it" } ?: h.title,
             isLive = false,
             key = h.key,
             startMs = start,
